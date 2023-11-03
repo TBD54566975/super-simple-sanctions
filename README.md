@@ -2,7 +2,7 @@
 
 This sanctions checker does fuzzy date and country and name checking and issues a Verifiable Credential if the name is not on any sanctions list.
 
-Uses: https://moov-io.github.io/watchman/ as sanctions search engine.
+Uses: https://moov-io.github.io/watchman/ as sanctions search engine as well as web5-js library.
 
 # Running
 
