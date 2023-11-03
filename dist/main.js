@@ -68,24 +68,68 @@ function areAllListsEmpty(data) {
 console.log(areAllListsEmpty(res2));
 res2 = await sanctionsCheck('Michael Neale', 'Australia', '28 Sep 1974', 12);
 console.log(areAllListsEmpty(res2));
-process.exit(0);
-// get the did from the command line parameter
-const customerDid = process.argv[2];
 const issuer = await createOrLoadDid('issuer.json');
+import express from 'express';
+const app = express();
+const port = 3000; // Use any port suitable for your environment
+// Endpoint to check sanctions and return a credential
+app.get('/check-sanctions', async (req, res) => {
+    const { name, dateOfBirth, country, monthRange, customerDid } = req.query;
+    // Validate query parameters
+    if (!name || !dateOfBirth || !country || !monthRange) {
+        return res.status(400).send({ error: 'Missing query parameters' });
+    }
+    try {
+        const results = await sanctionsCheck(name, country, dateOfBirth, monthRange);
+        const isEmpty = areAllListsEmpty(results);
+        if (isEmpty) {
+            // Here you would call a function to create the credential, which is not fully shown in your original code
+            const { signedCredential } = await DevTools.createCredential({
+                type: 'SanctionCredential',
+                issuer: issuer,
+                subject: customerDid,
+                data: {
+                    'beep': 'boop'
+                }
+            });
+            // Respond with the credential if all lists are empty
+            res.json({ signedCredential });
+        }
+        else {
+            // Respond with the results if not all lists are empty
+            res.json({ results });
+        }
+    }
+    catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+/*
+
 //
 // At this point we can check if the user is sanctioned or not and decide to issue the credential.
 // TOOD: implement the actual sanctions check!
+
+
 //
 //
 // Create a sanctions credential so that the PFI knows that Alice is legit.
 //
 const { signedCredential } = await DevTools.createCredential({
-    type: 'SanctionCredential',
-    issuer: issuer,
-    subject: customerDid,
-    data: {
-        'beep': 'boop'
-    }
-});
-console.log('Copy this signed credential for later use:\n\n', signedCredential);
+  type    : 'SanctionCredential',
+  issuer  : issuer,
+  subject : customerDid,
+  data    : {
+    'beep': 'boop'
+  }
+})
+
+console.log('Copy this signed credential for later use:\n\n', signedCredential)
+
+*/
+// http://localhost:3000/check-sanctions?name=Mic&dateOfBirth=10-july-1974&country=Australia&monthRange=12
+// http://localhost:3000/check-sanctions?name=IBRAHIM,%20Haji&dateOfBirth=28 Sep 1957&country=Iraq&monthRange=12
 //# sourceMappingURL=main.js.map

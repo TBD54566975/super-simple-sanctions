@@ -89,6 +89,9 @@ async function sanctionsCheck(name, country, birthDate, monthRange) {
 }
 
 
+function areAllListsEmpty(data): boolean {
+  return Object.values(data).every((value) => Array.isArray(value) && value.length === 0)
+}
 
 
 // Usage
@@ -96,10 +99,6 @@ let res2 = await sanctionsCheck('IBRAHIM,%20Haji', 'Iraq', '28 Sep 1957', 12)
 console.log(res2)
 
 
-
-function areAllListsEmpty(data): boolean {
-  return Object.values(data).every((value) => Array.isArray(value) && value.length === 0)
-}
 
 
 console.log(areAllListsEmpty(res2))
@@ -109,34 +108,55 @@ res2 = await sanctionsCheck('Michael Neale', 'Australia', '28 Sep 1974', 12)
 console.log(areAllListsEmpty(res2))
 
 
-process.exit(0)
 
 
 
-// get the did from the command line parameter
-const customerDid = process.argv[2]
 
 const issuer = await createOrLoadDid('issuer.json')
 
-//
-// At this point we can check if the user is sanctioned or not and decide to issue the credential.
-// TOOD: implement the actual sanctions check!
 
+import express from 'express'
 
-//
-//
-// Create a sanctions credential so that the PFI knows that Alice is legit.
-//
-const { signedCredential } = await DevTools.createCredential({
-  type    : 'SanctionCredential',
-  issuer  : issuer,
-  subject : customerDid,
-  data    : {
-    'beep': 'boop'
+const app = express()
+const port = 3000 // Use any port suitable for your environment
+
+// Endpoint to check sanctions and return a credential
+app.get('/check-sanctions', async (req, res) => {
+  const { name, dateOfBirth, country, monthRange, customerDid } = req.query
+
+  // Validate query parameters
+  if (!name || !dateOfBirth || !country || !monthRange) {
+    return res.status(400).send({ error: 'Missing query parameters' })
+  }
+
+  try {
+    const results = await sanctionsCheck(name as string, country as string, dateOfBirth as string, monthRange)
+    const isEmpty = areAllListsEmpty(results)
+
+    if (isEmpty) {
+      // Here you would call a function to create the credential, which is not fully shown in your original code
+      const { signedCredential } = await DevTools.createCredential({
+        type    : 'SanctionCredential',
+        issuer  : issuer,
+        subject: customerDid as unknown as string,
+        data    : {
+          'beep': 'boop'
+        }
+      })
+
+      // Respond with the credential if all lists are empty
+      res.json({ signedCredential })
+    } else {
+      // Respond with the results if not all lists are empty
+      res.json({ results })
+    }
+  } catch (error) {
+    res.status(500).send({ error: error.message })
   }
 })
 
-console.log('Copy this signed credential for later use:\n\n', signedCredential)
-
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`)
+})
 
 
