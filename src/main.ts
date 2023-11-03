@@ -92,18 +92,21 @@ async function sanctionsCheck(name, country, birthDate, monthRange) {
 
 
 // Usage
-const res2 = await sanctionsCheck('IBRAHIM,%20Haji', 'Iraq', '28 Sep 1957', 12)
-  .then(filteredData => {
-    console.log(filteredData)
-  })
-  .catch(error => {
-    console.error('There was an error fetching or filtering the data:', error)
-  })
-
+let res2 = await sanctionsCheck('IBRAHIM,%20Haji', 'Iraq', '28 Sep 1957', 12)
 console.log(res2)
 
 
 
+function areAllListsEmpty(data): boolean {
+  return Object.values(data).every((value) => Array.isArray(value) && value.length === 0)
+}
+
+
+console.log(areAllListsEmpty(res2))
+
+
+res2 = await sanctionsCheck('Michael Neale', 'Australia', '28 Sep 1974', 12)
+console.log(areAllListsEmpty(res2))
 
 
 process.exit(0)
