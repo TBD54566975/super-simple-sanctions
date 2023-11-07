@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  watchman:
+    image: moov/watchman:latest
+    ports:
+      - "8084:8084"
+      - "9094:9094"
+  
+  issuer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - WATCHMAN_HOST=watchman
+      - NODE_ENV=production
+    depends_on:
+      - watchman

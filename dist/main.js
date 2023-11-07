@@ -59,15 +59,9 @@ async function sanctionsCheck(name, country, birthDate, monthRange) {
     });
     return filteredData;
 }
-// Usage
-let res2 = await sanctionsCheck('IBRAHIM,%20Haji', 'Iraq', '28 Sep 1957', 12);
-console.log(res2);
 function areAllListsEmpty(data) {
     return Object.values(data).every((value) => Array.isArray(value) && value.length === 0);
 }
-console.log(areAllListsEmpty(res2));
-res2 = await sanctionsCheck('Michael Neale', 'Australia', '28 Sep 1974', 12);
-console.log(areAllListsEmpty(res2));
 const issuer = await createOrLoadDid('issuer.json');
 import express from 'express';
 const app = express();
@@ -107,29 +101,4 @@ app.get('/check-sanctions', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-/*
-
-//
-// At this point we can check if the user is sanctioned or not and decide to issue the credential.
-// TOOD: implement the actual sanctions check!
-
-
-//
-//
-// Create a sanctions credential so that the PFI knows that Alice is legit.
-//
-const { signedCredential } = await DevTools.createCredential({
-  type    : 'SanctionCredential',
-  issuer  : issuer,
-  subject : customerDid,
-  data    : {
-    'beep': 'boop'
-  }
-})
-
-console.log('Copy this signed credential for later use:\n\n', signedCredential)
-
-*/
-// http://localhost:3000/check-sanctions?name=Mic&dateOfBirth=10-july-1974&country=Australia&monthRange=12
-// http://localhost:3000/check-sanctions?name=IBRAHIM,%20Haji&dateOfBirth=28 Sep 1957&country=Iraq&monthRange=12
 //# sourceMappingURL=main.js.map
