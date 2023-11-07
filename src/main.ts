@@ -72,7 +72,8 @@ const processData = (data, params: SearchParams) => {
 // Fetch data from the given URL and then filter based on DOB
 async function sanctionsCheck(name, country, birthDate, monthRange) {
   // ensure docker run -p 8084:8084 -p 9094:9094 moov/watchman:latest is running
-  const response = await fetch(`http://localhost:8084/search?q=${name}&minMatch=0.95`)
+  const watchmanHost = process.env.WATCHMAN_HOST || 'localhost'
+  const response = await fetch(`http://${watchmanHost}:8084/search?q=${name}&minMatch=0.95`)
 
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`)
@@ -93,19 +94,6 @@ function areAllListsEmpty(data): boolean {
   return Object.values(data).every((value) => Array.isArray(value) && value.length === 0)
 }
 
-
-// Usage
-let res2 = await sanctionsCheck('IBRAHIM,%20Haji', 'Iraq', '28 Sep 1957', 12)
-console.log(res2)
-
-
-
-
-console.log(areAllListsEmpty(res2))
-
-
-res2 = await sanctionsCheck('Michael Neale', 'Australia', '28 Sep 1974', 12)
-console.log(areAllListsEmpty(res2))
 
 
 
