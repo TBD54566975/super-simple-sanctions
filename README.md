@@ -7,10 +7,9 @@ Uses: https://moov-io.github.io/watchman/ as sanctions search engine as well as 
 # Running
 
 Ensure you have docker and docker-compose installed:
-    
-    ```
+        
     docker-compose up --build
-    ```
+    
 
 This will take a minute to sync and index the data from the sanctions lists (such as OFAC and more) as well as refresh them periodically. 
 
