@@ -11,6 +11,24 @@
             padding: 50px;
         }
 
+        form {
+            display: grid;
+            grid-template-columns: auto auto;
+            column-gap: 10px;
+            row-gap: 5px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: fit-content;
+        }
+
+        form label {
+            text-align: right;
+            padding-right: 10px;
+        }
+
         #jsonOutput {
             text-align: left;
             background-color: #fff;
@@ -18,32 +36,45 @@
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin: auto;
+            margin-top: 20px;
             width: 80%;
             overflow-x: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+
+        button {
+            grid-column: span 2;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Pretty Printed JSON</h1>
+    <h1>Check for sanctions (or issue VC)</h1>
+    <form id="sanctionsForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="Haji Ibrahim">
+
+        <label for="dateOfBirth">Date of Birth:</label>
+        <input type="date" id="dateOfBirth" name="dateOfBirth" value="1957-09-28">
+
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" value="Iraq">
+
+        <label for="monthRange">Month Range:</label>
+        <input type="number" id="monthRange" name="monthRange" value="12">
+
+        <label for="fuzzyMatch">Fuzzy Match:</label>
+        <input type="number" id="fuzzyMatch" name="fuzzyMatch" step="0.01" value="0.95" min="0" max="1">
+
+        <button type="button" onclick="loadData()">Check Sanctions</button>
+    </form>
+
     <pre id="jsonOutput"></pre>
 
     <script>
-        var jsonData = {
-            "name": "John Doe",
-            "age": 30,
-            "isEmployed": true,
-            "address": {
-                "street": "123 Main St",
-                "city": "Anytown",
-                "zipCode": "12345"
-            }
-        };
-
-        // Manually format JSON as a string
         function formatJsonAsText(jsonObj, indent = 0) {
-            const indentSpace = '    '; // 4 spaces for indentation
+            const indentSpace = '    ';
             let formattedText = '';
             for (const key in jsonObj) {
                 if (jsonObj.hasOwnProperty(key)) {
@@ -58,7 +89,25 @@
             return formattedText;
         }
 
-        document.getElementById('jsonOutput').textContent = formatJsonAsText(jsonData);
+        function loadData() {
+            const name = document.getElementById('name').value;
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
+            const country = document.getElementById('country').value;
+            const monthRange = document.getElementById('monthRange').value;
+            const fuzzyMatch = document.getElementById('fuzzyMatch').value;
+
+            const apiUrl = `/check-sanctions?name=${encodeURIComponent(name)}&dateOfBirth=${encodeURIComponent(dateOfBirth)}&country=${encodeURIComponent(country)}&monthRange=${encodeURIComponent(monthRange)}&fuzzyMatch=${encodeURIComponent(fuzzyMatch)}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('jsonOutput').textContent = formatJsonAsText(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('jsonOutput').textContent = 'Error loading data.';
+                });
+        }
     </script>
 </body>
 </html>
