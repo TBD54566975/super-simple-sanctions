@@ -104,9 +104,18 @@ const issuer = await createOrLoadDid('issuer.json')
 
 
 import express from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 const app = express()
 const port = 3000 // Use any port suitable for your environment
+
+// Serve only index.html for the root path
+app.get('/', (req, res) => {
+  // Define __dirname in ES module environment
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 // Endpoint to check sanctions and return a credential
 app.get('/check-sanctions', async (req, res) => {

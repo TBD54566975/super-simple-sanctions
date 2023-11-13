@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sanctions Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        #jsonOutput {
+            text-align: left;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: auto;
+            width: 80%;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pretty Printed JSON</h1>
+    <pre id="jsonOutput"></pre>
+
+    <script>
+        var jsonData = {
+            "name": "John Doe",
+            "age": 30,
+            "isEmployed": true,
+            "address": {
+                "street": "123 Main St",
+                "city": "Anytown",
+                "zipCode": "12345"
+            }
+        };
+
+        // Manually format JSON as a string
+        function formatJsonAsText(jsonObj, indent = 0) {
+            const indentSpace = '    '; // 4 spaces for indentation
+            let formattedText = '';
+            for (const key in jsonObj) {
+                if (jsonObj.hasOwnProperty(key)) {
+                    formattedText += ' '.repeat(indent) + key + ': ';
+                    if (typeof jsonObj[key] === 'object' && jsonObj[key] !== null) {
+                        formattedText += '\n' + formatJsonAsText(jsonObj[key], indent + 4);
+                    } else {
+                        formattedText += jsonObj[key] + '\n';
+                    }
+                }
+            }
+            return formattedText;
+        }
+
+        document.getElementById('jsonOutput').textContent = formatJsonAsText(jsonData);
+    </script>
+</body>
+</html>
