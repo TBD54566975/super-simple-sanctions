@@ -52,8 +52,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "compile": "tsc",
+    "copy-static": "cp -R src/public/ dist/public/",
+    "build": "npm run clean && npm run compile && npm run copy-static",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "lint:fix": "eslint . --ext .ts --fix",
-    "server": "npm run clean && npm run compile && node --enable-source-maps dist/main.js"
+    "server": "npm run build && node --enable-source-maps dist/main.js"
   }
 }

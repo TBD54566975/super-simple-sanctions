@@ -70,10 +70,10 @@ const processData = (data, params: SearchParams) => {
 
 
 // Fetch data from the given URL and then filter based on DOB
-async function sanctionsCheck(name, country, birthDate, monthRange) {
+async function sanctionsCheck(name, country, birthDate, monthRange, minMatch) {
   // ensure docker run -p 8084:8084 -p 9094:9094 moov/watchman:latest is running
   const watchmanHost = process.env.WATCHMAN_HOST || 'localhost'
-  const response = await fetch(`http://${watchmanHost}:8084/search?q=${name}&minMatch=0.95`)
+  const response = await fetch(`http://${watchmanHost}:8084/search?q=${name}&minMatch=${minMatch}`)
 
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`)
@@ -104,13 +104,31 @@ const issuer = await createOrLoadDid('issuer.json')
 
 
 import express from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import fs from 'fs'
 
 const app = express()
 const port = 3000 // Use any port suitable for your environment
 
+
+// Read the file into memory at startup
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const indexPath = path.join(__dirname, 'public', 'index.html')
+const indexHTML = fs.readFileSync(indexPath, 'utf-8')
+// Define __dirname in ES module environment
+
+
+app.get('/', (req, res) => {
+  // Serve the cached HTML
+  res.send(indexHTML)
+})
+
+
+
 // Endpoint to check sanctions and return a credential
 app.get('/check-sanctions', async (req, res) => {
-  const { name, dateOfBirth, country, monthRange, customerDid } = req.query
+  const { name, dateOfBirth, country, monthRange, customerDid, fuzzyMatch } = req.query
 
   // Validate query parameters
   if (!name || !dateOfBirth || !country || !monthRange) {
@@ -118,7 +136,7 @@ app.get('/check-sanctions', async (req, res) => {
   }
 
   try {
-    const results = await sanctionsCheck(name as string, country as string, dateOfBirth as string, monthRange)
+    const results = await sanctionsCheck(name as string, country as string, dateOfBirth as string, monthRange, fuzzyMatch)
     const isEmpty = areAllListsEmpty(results)
 
     if (isEmpty) {
